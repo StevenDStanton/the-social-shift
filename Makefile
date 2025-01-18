@@ -1,12 +1,12 @@
 # Makefile for building the game for Web, PC (Windows & Linux), Android, or All
 
 # Variables
-PROJECT_PATH = github.com/StevenDStanton/game-name
+PROJECT_PATH = github.com/StevenDStanton/the-social-shift
 DIST_DIR = dist
-VERSION = 0.0.10
+VERSION = 0.0.15
 GOROOT_WASM = $(shell go env GOROOT)/misc/wasm/wasm_exec.js
 BUTLER_USER = ApocalypseTheory
-BUTLER_PROJECT = game-name
+BUTLER_PROJECT = the-social-shift
 BUTLER_PLATFORM = HTML5
 
 # Default build target

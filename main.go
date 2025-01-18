@@ -11,6 +11,10 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/audio"
 	"github.com/hajimehoshi/ebiten/v2/audio/wav"
+	"github.com/hajimehoshi/ebiten/v2/text"
+	"golang.org/x/image/font"
+	"golang.org/x/image/font/gofont/gomono"
+	"golang.org/x/image/font/opentype"
 )
 
 // Embed the image and audio assets.
@@ -18,23 +22,98 @@ import (
 //go:embed assets/audio/Stamp_old_3_16b_.wav
 var stampWav []byte
 
+const (
+	screenWidth  = 1280
+	screenHeight = 720
+
+	cellWidth  = 24
+	cellHeight = 24
+
+	rows    = 45 // 720 / 16
+	cols    = 80 // 1280 / 16
+	divider = 50 // Column where the UI panel starts
+
+)
+
+var face font.Face
+
+type Player struct {
+	x, y int
+}
+
 type Game struct {
+	grid                  [][]rune
 	mousePressedLastFrame bool
-	img                   *ebiten.Image
 	audioContext          *audio.Context
-	player                *audio.Player
+	audioPlayer           *audio.Player
+	player                *Player
+	movementCooldown      int
 }
 
-// NewGame initializes the game by loading assets.
-func NewGame() (*Game, error) {
-	game := &Game{}
-
-	return game, nil
+// Update handles the game logic.
+func (g *Game) Update() error {
+	g.Movement()
+	mousePress(g)
+	return nil
 }
 
-// initializeAudio sets up the audio context and player.
+// Draw renders the game screen.
+func (g *Game) Draw(screen *ebiten.Image) {
+	screen.Fill(color.Black)
+
+	for y := 0; y < len(g.grid); y++ {
+		for x := 0; x < len(g.grid[y]); x++ {
+			char := g.grid[y][x]
+			text.Draw(screen, string(char), face, x*cellWidth, (y+1)*cellHeight, color.White)
+
+		}
+	}
+
+}
+
+// Layout defines the screen dimensions.
+func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
+	return screenWidth, screenHeight
+}
+
+func main() {
+	ebiten.SetWindowSize(screenWidth, screenHeight)
+	ebiten.SetWindowTitle("The Social Shift")
+
+	parsedFont, err := opentype.Parse(gomono.TTF)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Now convert that parsed font into a usable Face.
+	face, err = opentype.NewFace(parsedFont, &opentype.FaceOptions{
+		Size:    24, // Font size in points
+		DPI:     72, // Typical screen DPI
+		Hinting: font.HintingNone,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Create a simple ASCII map: a box with walls (#) and a player (@).
+
+	player := &Player{x: 10, y: 10}
+
+	game := &Game{player: player, movementCooldown: 15}
+
+	game.initGrid()
+
+	if err != nil {
+		log.Fatalf("Failed to initialize game: %v", err)
+	}
+
+	if err := ebiten.RunGame(game); err != nil {
+		log.Fatal(err)
+	}
+}
+
 func (g *Game) initializeAudio() error {
-	if g.audioContext != nil && g.player != nil {
+	if g.audioContext != nil && g.audioPlayer != nil {
 		return nil // Already initialized
 	}
 
@@ -49,7 +128,7 @@ func (g *Game) initializeAudio() error {
 		return err
 	}
 
-	g.player, err = g.audioContext.NewPlayer(wavStream)
+	g.audioPlayer, err = g.audioContext.NewPlayer(wavStream)
 	if err != nil {
 		return err
 	}
@@ -58,8 +137,7 @@ func (g *Game) initializeAudio() error {
 	return nil
 }
 
-// Update handles the game logic.
-func (g *Game) Update() error {
+func mousePress(g *Game) error {
 	mousePressed := ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft)
 	if mousePressed && !g.mousePressedLastFrame {
 		x, y := ebiten.CursorPosition()
@@ -72,36 +150,86 @@ func (g *Game) Update() error {
 		}
 
 		// Play the audio
-		if g.player != nil {
-			g.player.Rewind()
-			g.player.Play()
+		if g.audioPlayer != nil {
+			g.audioPlayer.Rewind()
+			g.audioPlayer.Play()
 			log.Println("Audio played")
 		}
 	}
 	g.mousePressedLastFrame = mousePressed
+
 	return nil
 }
 
-// Draw renders the game screen.
-func (g *Game) Draw(screen *ebiten.Image) {
-	screen.Fill(color.RGBA{120, 180, 255, 255})
-}
+func (g *Game) initGrid() {
+	g.grid = make([][]rune, rows)
 
-// Layout defines the screen dimensions.
-func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	return 640, 360
-}
-
-func main() {
-	ebiten.SetWindowSize(640, 360)
-	ebiten.SetWindowTitle("Alchemist of the Shadow Bureau")
-
-	game, err := NewGame()
-	if err != nil {
-		log.Fatalf("Failed to initialize game: %v", err)
+	for y := 0; y < rows; y++ {
+		g.grid[y] = make([]rune, cols)
+		for x := 0; x < cols; x++ {
+			switch {
+			// Top or bottom boundary
+			case y == 0 || y == rows-1:
+				g.grid[y][x] = '#'
+			// Left or right boundary
+			case x == 0 || x == cols-1:
+				g.grid[y][x] = '#'
+			// Divider between play area and UI panel
+			case x == divider:
+				g.grid[y][x] = '|'
+			// Everything else defaults to space
+			default:
+				g.grid[y][x] = ' '
+			}
+		}
 	}
 
-	if err := ebiten.RunGame(game); err != nil {
-		log.Fatal(err)
+	g.grid[g.player.x][g.player.y] = '@'
+
+}
+
+func (g *Game) Movement() {
+
+	if g.movementCooldown > 0 {
+		g.movementCooldown--
+		return
 	}
+
+	moved := false
+	// Move the player '@' based on key presses
+	if ebiten.IsKeyPressed(ebiten.KeyW) {
+		g.movePlayer(0, -1)
+		moved = true
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyA) {
+		g.movePlayer(-1, 0)
+		moved = true
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyS) {
+		g.movePlayer(0, 1)
+		moved = true
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyD) {
+		g.movePlayer(1, 0)
+		moved = true
+	}
+
+	if moved {
+		g.movementCooldown = 15
+	}
+}
+
+func (g *Game) movePlayer(dx, dy int) {
+	newX := g.player.x + dx
+	newY := g.player.y + dy
+
+	if g.grid[newY][newX] == '#' || g.grid[newY][newX] == '|' {
+		return
+	}
+
+	// Move the player
+	g.grid[g.player.y][g.player.x] = ' '
+	g.player.x = newX
+	g.player.y = newY
+	g.grid[g.player.y][g.player.x] = '@'
 }

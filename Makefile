@@ -3,7 +3,7 @@
 # Variables
 PROJECT_PATH = github.com/StevenDStanton/the-social-shift
 DIST_DIR = dist
-VERSION = 0.0.15
+VERSION = 0.0.16
 GOROOT_WASM = $(shell go env GOROOT)/misc/wasm/wasm_exec.js
 BUTLER_USER = ApocalypseTheory
 BUTLER_PROJECT = the-social-shift

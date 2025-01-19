@@ -102,7 +102,7 @@ func (g *Game) initGrid() {
 				g.grid[y][x] = '|'
 			// Everything else defaults to space
 			default:
-				g.grid[y][x] = '.'
+				g.grid[y][x] = ' '
 			}
 		}
 	}

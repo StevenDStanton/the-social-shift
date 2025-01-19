@@ -1,15 +1,11 @@
-package main
+package game
 
 import (
-	"bytes"
 	"image/color"
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
-	"github.com/hajimehoshi/ebiten/v2/audio"
-	"github.com/hajimehoshi/ebiten/v2/audio/wav"
 	"github.com/hajimehoshi/ebiten/v2/text"
-	"golang.org/x/exp/rand"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/gofont/gomono"
 	"golang.org/x/image/font/opentype"
@@ -29,41 +25,6 @@ func (g *Game) loadLevel() {
 	})
 	if err != nil {
 		log.Fatal(err)
-	}
-
-	// Create a simple ASCII map: a box with walls (#) and a player (@).
-
-	d1, err := wav.Decode(g.audioContext, bytes.NewReader(step1))
-	if err != nil {
-		log.Fatal(err)
-	}
-	p1, err := g.audioContext.NewPlayer(d1)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	d2, err := wav.Decode(g.audioContext, bytes.NewReader(step2))
-	if err != nil {
-		log.Fatal(err)
-	}
-	p2, err := g.audioContext.NewPlayer(d2)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	d3, err := wav.Decode(g.audioContext, bytes.NewReader(step3))
-	if err != nil {
-		log.Fatal(err)
-	}
-	p3, err := g.audioContext.NewPlayer(d3)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	g.player = &Player{
-		x:    10,
-		y:    10,
-		walk: []*audio.Player{p1, p2, p3},
 	}
 
 }
@@ -117,24 +78,23 @@ func (g *Game) initGrid() {
 			}
 		}
 	}
-
-	g.grid[g.player.x][g.player.y] = '@'
+	x, y := g.player.GetPosition()
+	g.grid[x][y] = g.player.GetSymbol()
 
 }
 
-func (g *Game) movePlayer(dx, dy int) {
-	newX := g.player.x + dx
-	newY := g.player.y + dy
+func (g *Game) canPlayerMoveToPosition(move BoardMove) bool {
+	currentX, currentY := g.player.GetPosition()
+	futureX := currentX + move.x
+	futureY := currentY + move.y
+	futureLoc := g.grid[futureY][futureX]
 
-	if g.grid[newY][newX] == '#' || g.grid[newY][newX] == '|' {
-		return
+	_, exists := Obstacles[futureLoc]
+	if exists {
+		return false
 	}
 
-	// Move the player
-	g.grid[g.player.y][g.player.x] = ' '
-	g.player.x = newX
-	g.player.y = newY
-	g.grid[g.player.y][g.player.x] = '@'
+	return true
 }
 
 func (g *Game) Movement() {
@@ -144,32 +104,37 @@ func (g *Game) Movement() {
 		return
 	}
 
-	moved := false
+	canMove := false
+	currentMove := BoardMove{0, 0}
 	// Move the player '@' based on key presses
 	if ebiten.IsKeyPressed(ebiten.KeyW) {
-		g.movePlayer(0, -1)
-		moved = true
+		currentMove = BoardMove{0, -1}
+		canMove = g.canPlayerMoveToPosition(currentMove)
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyA) {
-		g.movePlayer(-1, 0)
-		moved = true
+		currentMove = BoardMove{-1, 0}
+		canMove = g.canPlayerMoveToPosition(currentMove)
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyS) {
-		g.movePlayer(0, 1)
-		moved = true
+		currentMove = BoardMove{0, 1}
+		canMove = g.canPlayerMoveToPosition(currentMove)
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyD) {
-		g.movePlayer(1, 0)
-		moved = true
+		currentMove = BoardMove{1, 0}
+		canMove = g.canPlayerMoveToPosition(currentMove)
 	}
 
-	if moved {
-		g.movementCooldown = 15
-		index := rand.Intn(len(g.player.walk))
-		sound := g.player.walk[index]
-		sound.SetVolume(0.5)
-
-		sound.Rewind() // If you want it to start from the beginning each time
-		sound.Play()
+	if canMove {
+		g.movementCooldown = COOLDOWN
+		g.updateBoard(currentMove)
 	}
+}
+
+func (g *Game) updateBoard(currentMove BoardMove) {
+	playerPastX, playerPastY := g.player.GetPosition()
+	g.player.Move(currentMove.x, currentMove.y)
+	playerNewX, playerNewY := g.player.GetPosition()
+	g.grid[playerPastY][playerPastX] = LEVEL_EMPTY
+	g.grid[playerNewY][playerNewX] = g.player.GetSymbol()
+
 }

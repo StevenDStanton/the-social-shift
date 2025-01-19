@@ -147,6 +147,38 @@ func (g *Game) drawIntro(screen *ebiten.Image) {
 		op4.GeoM.Translate(x4, y4)
 
 		screen.DrawImage(g.intro.images[3], op4)
+
+	case 3:
+		// -- NEW: Credits Screen --
+		face := basicfont.Face7x13
+
+		// The text lines you want to show
+		creditLines := []string{
+			"Credits",
+			"==========",
+			"Coded by TheSimpleDev",
+			"Footstep sounds by Kenney (kenney.nl)",
+			"Awesome Gopher Art by MariaLetta",
+			// Add more if you like
+		}
+
+		// Measure each line to center or position as you wish
+		lineHeight := text.BoundString(face, "A").Dy() + 4
+		totalLines := len(creditLines)
+		totalHeight := lineHeight * totalLines
+
+		// Let's center the block of text on screen
+		startY := (screenHeight - totalHeight) / 2
+
+		for i, line := range creditLines {
+			lineWidth := text.BoundString(face, line).Dx()
+			startX := (screenWidth - lineWidth) / 2
+			// Top-left corner for each line
+			x := startX
+			y := startY + i*lineHeight
+
+			text.Draw(screen, line, face, x, y, color.White)
+		}
 	}
 }
 
@@ -154,7 +186,7 @@ func (g *Game) updateIntro() {
 	g.introTimer++
 	if g.introTimer%120 == 0 {
 		g.introImageIndex++
-		if g.introImageIndex >= len(g.intro.images) {
+		if g.introImageIndex >= len(g.intro.images)+1 {
 			g.level = LEVEL1
 		}
 	}

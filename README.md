@@ -29,12 +29,10 @@ Web HTML5
 
 ### Development Software and Assets
 
-My focus in this Jam is learning Game Maker Studio 2. So I have decided to use pre-made assets for art and audio.
-
-- Game Maker Studio 2 for core development
-- [Modern Interiors](https://limezu.itch.io/moderninteriors)
-- [Modern Exteriors](https://limezu.itch.io/modernexteriors)
-- [Modern Office](https://limezu.itch.io/modernoffice)
+- Go
+- EbiteEngine
+- ASCII art
+- Sounds from Kenney.nl
 
 ### Genre
 
@@ -100,7 +98,7 @@ In The Social Shift, your voice your cunning, and your knowledge are your weapon
 
 ### Theme
 
-- A corporate office enviroment
+- A corporate office environment
 - NPC sprites with minimal features.
 
 ### Design

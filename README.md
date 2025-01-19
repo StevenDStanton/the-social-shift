@@ -273,27 +273,3 @@ TODO
 | 12  | 1/28 |   Bug Hunting   |     Pending |               Test and fix bugs                |
 | 13  | 1/29 |  Final Testing  |     Pending |        Final Sanity Tests and bug fixes        |
 | 14  | 1/30 |     Submit      |     Pending |                  Submit Game                   |
-
-- Keyboard/Mouse
-  - Keyboard moves the character with WASD
-  - Arrow keys navigate choices
-  - Space/Enter select choice
-
-## Development Timeline
-
-| Day | Date |      Type       |      Status |                     Notes                      |
-| :-: | :--: | :-------------: | ----------: | :--------------------------------------------: |
-|  1  | 1/17 | Brain Storming  |   Completed |       Deciding on how to implement theme       |
-|  2  | 1/18 | Design Document |   Completed |          Finish Game Design Document           |
-|  3  | 1/19 |     Coding      | in Progress |             Code base game systems             |
-|  4  | 1/20 |     Coding      |     Pending |           Code Dialog, interactions            |
-|  5  | 1/21 |      Audio      |     Pending | Set up audio for footsteps, timers, and alarms |
-|  6  | 1/22 |  Level Design   |     Pending |                 Design Levels                  |
-|  7  | 1/23 |  Level Design   |     Pending |                 Design Levels                  |
-|  8  | 1/24 |  Level Design   |     Pending |                 Design Levels                  |
-|  9  | 1/25 |     Coding      |     Pending |                  Code Puzzles                  |
-| 10  | 1/26 |     Coding      |     Pending |                Last day of code                |
-| 11  | 1/27 |   Bug Hunting   |     Pending |               Test and fix bugs                |
-| 12  | 1/28 |   Bug Hunting   |     Pending |               Test and fix bugs                |
-| 13  | 1/29 |  Final Testing  |     Pending |        Final Sanity Tests and bug fixes        |
-| 14  | 1/30 |     Submit      |     Pending |                  Submit Game                   |

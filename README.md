@@ -25,7 +25,7 @@ players will experience a blend of
 
 ### Platform
 
-Web HTML5
+Web HTML5z
 
 ### Development Software and Assets
 
@@ -131,19 +131,19 @@ TODO
 
 ## Development Timeline
 
-| Day |         Type          |      Status |                         Notes                         |
-| :-: | :-------------------: | ----------: | :---------------------------------------------------: |
-|  1  | Brain Storming/Assets |   Completed |    Deciding on how to implement theme Find Assets     |
-|  2  |    Design Document    | In Progress |          Flush out Game Design and Missions           |
-|  3  |        Design         |     Pending |       Layout Rooms and design basic characters        |
-|  4  |        Coding         |     Pending | Implement basic functionality (movement, dialog, etc) |
-|  5  |          Off          |   Completed |        Monday Focus on Work after long weekend        |
-|  6  |         Write         |     Pending |                 Write Mission Dialog                  |
-|  7  |         Write         |     Pending |                 Write Mission Dialog                  |
-|  8  |         Write         |     Pending |                 Write Mission Dialog                  |
-|  9  |        Coding         |     Pending |                 Code Dialog Missions                  |
-| 10  |        Coding         |     Pending |                 Code Puzzle Missions                  |
-| 11  |         Audio         |     Pending |              Add Sound Effects and Music              |
-| 12  |      Bug Hunting      |     Pending |                   Test and fix bugs                   |
-| 13  |     Final Testing     |     Pending |           Final Sanity Tests and bug fixes            |
-| 14  |        Submit         |     Pending |                      Submit Game                      |
+| Day | Date |      Type       |      Status |                     Notes                      |
+| :-: | :--: | :-------------: | ----------: | :--------------------------------------------: |
+|  1  | 1/17 | Brain Storming  |   Completed |       Deciding on how to implement theme       |
+|  2  | 1/18 | Design Document |   Completed |          Finish Game Design Document           |
+|  3  | 1/19 |     Coding      | in Progress |             Code base game systems             |
+|  4  | 1/20 |     Coding      |     Pending |           Code Dialog, interactions            |
+|  5  | 1/21 |      Audio      |     Pending | Set up audio for footsteps, timers, and alarms |
+|  6  | 1/22 |  Level Design   |     Pending |                 Design Levels                  |
+|  7  | 1/23 |  Level Design   |     Pending |                 Design Levels                  |
+|  8  | 1/24 |  Level Design   |     Pending |                 Design Levels                  |
+|  9  | 1/25 |     Coding      |     Pending |                  Code Puzzles                  |
+| 10  | 1/26 |     Coding      |     Pending |                Last day of code                |
+| 11  | 1/27 |   Bug Hunting   |     Pending |               Test and fix bugs                |
+| 12  | 1/28 |   Bug Hunting   |     Pending |               Test and fix bugs                |
+| 13  | 1/29 |  Final Testing  |     Pending |        Final Sanity Tests and bug fixes        |
+| 14  | 1/30 |     Submit      |     Pending |                  Submit Game                   |

@@ -33,7 +33,7 @@ help:
 # -------------------------------------------------------
 # Single Build Target
 # -------------------------------------------------------
-build: clean depend build-web build-pc-windows build-pc-linux deploy-web deploy-windows deploy-linux clean
+build: depend build-web build-pc-windows build-pc-linux deploy-web deploy-windows deploy-linux clean
 	@echo "=== All builds completed successfully ==="
 
 # -------------------------------------------------------

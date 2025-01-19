@@ -58,6 +58,7 @@ type Game struct {
 	movementCooldown int
 	introImageIndex  int
 	introTimer       int
+	levelLoaded      bool
 }
 
 // Update handles the game logic.
@@ -68,7 +69,7 @@ func (g *Game) Update() error {
 		g.updateIntro()
 		return nil
 	case g.level == LEVEL1:
-		g.Movement()
+		g.updateLevel()
 		return nil
 	default:
 		return nil
@@ -83,10 +84,8 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	switch {
 	case g.level == LEVEL0:
 		g.drawIntro(screen)
-	case g.level == LEVEL1:
-		g.drawLevel(screen)
 	default:
-		log.Fatal("Invalid level")
+		g.drawLevel(screen)
 	}
 
 }

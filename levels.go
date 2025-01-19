@@ -66,12 +66,6 @@ func (g *Game) loadLevel() {
 		walk: []*audio.Player{p1, p2, p3},
 	}
 
-	g.initGrid()
-
-	if err != nil {
-		log.Fatalf("Failed to initialize game: %v", err)
-	}
-
 }
 
 func (g *Game) drawLevel(screen *ebiten.Image) {
@@ -80,6 +74,17 @@ func (g *Game) drawLevel(screen *ebiten.Image) {
 			char := g.grid[y][x]
 			text.Draw(screen, string(char), face, x*cellWidth, (y+1)*cellHeight, color.White)
 
+		}
+	}
+}
+
+func (g *Game) updateLevel() {
+	g.Movement()
+	switch {
+	case g.level == LEVEL1:
+		if !g.levelLoaded {
+			g.initGrid()
+			g.levelLoaded = true
 		}
 	}
 }

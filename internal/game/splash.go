@@ -1,4 +1,4 @@
-package main
+package game
 
 import (
 	"bytes"
@@ -11,6 +11,10 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"golang.org/x/image/font/basicfont"
 )
+
+type Intro struct {
+	images []*ebiten.Image
+}
 
 func (g *Game) loadIntro() {
 	goLangImageData, _, err := image.Decode(bytes.NewReader(goLangImage))

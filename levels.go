@@ -1,11 +1,15 @@
 package main
 
 import (
+	"bytes"
 	"image/color"
 	"log"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/audio"
+	"github.com/hajimehoshi/ebiten/v2/audio/wav"
 	"github.com/hajimehoshi/ebiten/v2/text"
+	"golang.org/x/exp/rand"
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/gofont/gomono"
 	"golang.org/x/image/font/opentype"
@@ -19,8 +23,8 @@ func (g *Game) loadLevel() {
 	}
 
 	face, err = opentype.NewFace(parsedFont, &opentype.FaceOptions{
-		Size:    24, // Font size in points
-		DPI:     72, // Typical screen DPI
+		Size:    fontSize,
+		DPI:     DPI,
 		Hinting: font.HintingNone,
 	})
 	if err != nil {
@@ -29,7 +33,38 @@ func (g *Game) loadLevel() {
 
 	// Create a simple ASCII map: a box with walls (#) and a player (@).
 
-	g.player = &Player{x: 10, y: 10}
+	d1, err := wav.Decode(g.audioContext, bytes.NewReader(step1))
+	if err != nil {
+		log.Fatal(err)
+	}
+	p1, err := g.audioContext.NewPlayer(d1)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	d2, err := wav.Decode(g.audioContext, bytes.NewReader(step2))
+	if err != nil {
+		log.Fatal(err)
+	}
+	p2, err := g.audioContext.NewPlayer(d2)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	d3, err := wav.Decode(g.audioContext, bytes.NewReader(step3))
+	if err != nil {
+		log.Fatal(err)
+	}
+	p3, err := g.audioContext.NewPlayer(d3)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	g.player = &Player{
+		x:    10,
+		y:    10,
+		walk: []*audio.Player{p1, p2, p3},
+	}
 
 	g.initGrid()
 
@@ -67,7 +102,7 @@ func (g *Game) initGrid() {
 				g.grid[y][x] = '|'
 			// Everything else defaults to space
 			default:
-				g.grid[y][x] = ' '
+				g.grid[y][x] = '.'
 			}
 		}
 	}
@@ -119,5 +154,11 @@ func (g *Game) Movement() {
 
 	if moved {
 		g.movementCooldown = 15
+		index := rand.Intn(len(g.player.walk))
+		sound := g.player.walk[index]
+		sound.SetVolume(0.5)
+
+		sound.Rewind() // If you want it to start from the beginning each time
+		sound.Play()
 	}
 }

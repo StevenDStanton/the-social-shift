@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"image/color"
 	"log"
+	"math"
 
 	_ "image/png"
 
@@ -12,40 +13,26 @@ import (
 	"golang.org/x/image/font"
 )
 
-// Embed the image and audio assets.
-
-//go:embed assets/audio/Stamp_old_3_16b_.wav
-var stampWav []byte
-
-//go:embed assets/img/1.png
-var goLangImage []byte
-
-//go:embed assets/img/2.png
-var gopherImage []byte
-
-//go:embed assets/img/3.png
-var thesimpledevImage []byte
-
-//go:embed assets/img/4.png
-var aptImage []byte
-
 const (
 	screenWidth  = 1280
 	screenHeight = 720
 
-	cellWidth  = 24
-	cellHeight = 24
-
-	rows    = 45 // 720 / 16
-	cols    = 80 // 1280 / 16
-	divider = 50 // Column where the UI panel starts
-
+	fontSize = 16
+	DPI      = 72
 )
 
-var face font.Face
+var (
+	face       font.Face
+	rows       = screenHeight / cellHeight
+	cols       = screenWidth / cellWidth
+	cellWidth  = fontSize
+	cellHeight = fontSize
+	divider    = int(math.Round(float64(cols) * 0.6))
+)
 
 type Player struct {
 	x, y int
+	walk []*audio.Player
 }
 
 type Level int
@@ -63,22 +50,18 @@ type Intro struct {
 }
 
 type Game struct {
-	level                 Level
-	intro                 *Intro
-	grid                  [][]rune
-	mousePressedLastFrame bool
-	audioContext          *audio.Context
-	audioPlayer           *audio.Player
-	player                *Player
-	movementCooldown      int
-	introImageIndex       int
-	introTimer            int
+	level            Level
+	intro            *Intro
+	grid             [][]rune
+	audioContext     *audio.Context
+	player           *Player
+	movementCooldown int
+	introImageIndex  int
+	introTimer       int
 }
 
 // Update handles the game logic.
 func (g *Game) Update() error {
-
-	mousePress(g)
 
 	switch {
 	case g.level == LEVEL0:
@@ -119,7 +102,9 @@ func main() {
 
 	// Now convert that parsed font into a usable Face.
 
-	game := &Game{}
+	game := &Game{
+		audioContext: audio.NewContext(44100),
+	}
 
 	game.loadIntro()
 	game.loadLevel()

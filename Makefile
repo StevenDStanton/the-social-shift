@@ -3,7 +3,7 @@
 # Variables
 PROJECT_PATH          = github.com/StevenDStanton/the-social-shift
 DIST_DIR             = dist
-VERSION              = 0.0.20
+VERSION              = 0.0.25
 
 GOROOT_WASM          = $(shell go env GOROOT)/misc/wasm/wasm_exec.js
 
@@ -43,7 +43,7 @@ build-web:
 	@echo "=== Building Web (HTML5) ==="
 	@mkdir -p build/web
 	@cp $(GOROOT_WASM) build/web/
-	@cp -r assets build/web/
+
 	@env GOOS=js GOARCH=wasm go build -o build/web/$(BUTLER_PROJECT).wasm $(PROJECT_PATH)
 	@echo '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>$(BUTLER_PROJECT)</title></head><body><script src="wasm_exec.js"></script><script>if(!WebAssembly.instantiateStreaming){WebAssembly.instantiateStreaming=async(resp,importObject)=>{const source=await(resp).arrayBuffer();return await WebAssembly.instantiate(source,importObject);};}const go=new Go();WebAssembly.instantiateStreaming(fetch("$(BUTLER_PROJECT).wasm"),go.importObject).then(result=>{go.run(result.instance);});</script></body></html>' > build/web/index.html
 	@echo "Web (HTML5) build done."

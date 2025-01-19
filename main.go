@@ -58,7 +58,7 @@ type Game struct {
 	movementCooldown int
 	introImageIndex  int
 	introTimer       int
-	levelLoaded      bool
+	isLevelLoaded    bool
 }
 
 // Update handles the game logic.

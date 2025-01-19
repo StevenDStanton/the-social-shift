@@ -80,13 +80,19 @@ func (g *Game) drawLevel(screen *ebiten.Image) {
 
 func (g *Game) updateLevel() {
 	g.Movement()
+
+	if g.isLevelLoaded {
+		return
+	}
+
 	switch {
 	case g.level == LEVEL1:
-		if !g.levelLoaded {
-			g.initGrid()
-			g.levelLoaded = true
-		}
+		g.initGrid()
+
 	}
+
+	g.isLevelLoaded = true
+
 }
 
 func (g *Game) initGrid() {

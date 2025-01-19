@@ -3,10 +3,13 @@ package main
 import (
 	"bytes"
 	"image"
+	"image/color"
 	"log"
 	"math"
 
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/text"
+	"golang.org/x/image/font/basicfont"
 )
 
 func (g *Game) loadIntro() {
@@ -46,22 +49,78 @@ func (g *Game) drawIntro(screen *ebiten.Image) {
 
 	switch g.introImageIndex {
 	case 0:
-		// Image 1: Fill as large as possible while preserving aspect ratio
+		// ---------------------------------------------
+		// 0) Choose how large you want the text
+		// ---------------------------------------------
+		poweredText := "Powered By Ebitengine"
+		face := basicfont.Face7x13
+
+		// Measure unscaled text
+		tw := text.BoundString(face, poweredText).Dx()
+		th := text.BoundString(face, poweredText).Dy()
+
+		// We want to scale the text so it's bigger
+		textScale := 4.0
+		scaledTextW := float64(tw) * textScale
+		scaledTextH := float64(th) * textScale
+
+		// Decide how much vertical space you want between image and text
+		const spacing = 20.0
+
+		// ---------------------------------------------
+		// 1) Figure out how to scale the image
+		//    so that (image height + spacing + text height) fits on screen
+		// ---------------------------------------------
 		iw, ih := g.intro.images[0].Size()
+
+		// How wide can the image be? Full screen width
+		maxImageScaleW := float64(screenWidth) / float64(iw)
+
+		// How tall can the image be? It's the screen minus room for text + spacing
+		// (so the image plus spacing plus text won't exceed screen height).
+		maxAvailableHForImage := float64(screenHeight) - (scaledTextH + spacing)
+		maxImageScaleH := maxAvailableHForImage / float64(ih)
+
+		// We pick the smaller of these two to preserve the aspect ratio
+		imageScale := math.Min(maxImageScaleW, maxImageScaleH)
+		if imageScale < 0 {
+			// If our text is so large that maxImageScaleH < 0, just default
+			// to something small to avoid a negative scale (edge case).
+			imageScale = 0.5
+		}
+
+		// ---------------------------------------------
+		// 2) Draw the image centered horizontally, top aligned so that
+		//    we have room below for the text
+		// ---------------------------------------------
+		scaledImageW := float64(iw) * imageScale
+		scaledImageH := float64(ih) * imageScale
+
+		imageX := (float64(screenWidth) - scaledImageW) / 2
+		imageY := (float64(screenHeight) - (scaledImageH + spacing + scaledTextH)) / 2
+
 		op := &ebiten.DrawImageOptions{}
-
-		// Calculate a scale that keeps the image fully visible and preserves ratio
-		scaleW := float64(screenWidth) / float64(iw)
-		scaleH := float64(screenHeight) / float64(ih)
-		scale := math.Min(scaleW, scaleH)
-
-		op.GeoM.Scale(scale, scale)
-		// Center on screen
-		x := (float64(screenWidth) - float64(iw)*scale) / 2
-		y := (float64(screenHeight) - float64(ih)*scale) / 2
-		op.GeoM.Translate(x, y)
-
+		op.GeoM.Scale(imageScale, imageScale)
+		op.GeoM.Translate(imageX, imageY)
 		screen.DrawImage(g.intro.images[0], op)
+
+		// ---------------------------------------------
+		// 3) Draw the text below the image
+		// ---------------------------------------------
+		// Make an offscreen image for the text, drawn at normal size
+		textImg := ebiten.NewImage(tw, th)
+		text.Draw(textImg, poweredText, face, 0, th, color.White)
+
+		// We'll scale that offscreen text when drawing onto `screen`
+		txtOp := &ebiten.DrawImageOptions{}
+		txtOp.GeoM.Scale(textScale, textScale)
+
+		// Position the top of the text (scaled) spacing pixels below the image
+		textX := (float64(screenWidth) - scaledTextW) / 2
+		textY := imageY + scaledImageH + spacing - 150
+
+		txtOp.GeoM.Translate(textX, textY)
+		screen.DrawImage(textImg, txtOp)
 
 	case 1:
 		// Image 2 above Image 3

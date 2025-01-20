@@ -3,12 +3,12 @@
 # Variables
 PROJECT_PATH          = github.com/StevenDStanton/the-social-shift
 DIST_DIR             = dist
-VERSION              = 0.0.25
+VERSION              = 0.0.26
 
 GOROOT_WASM          = $(shell go env GOROOT)/misc/wasm/wasm_exec.js
 
 BUTLER_USER          = ApocalypseTheory
-BUTLER_PROJECT       = the-social-shift
+BUTLER_PROJECT       = the-social-contract
 
 # Butler channels for each target
 BUTLER_CHANNEL_WEB   = html5

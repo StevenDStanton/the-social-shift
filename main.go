@@ -1,7 +1,6 @@
 package main
 
 import (
-	_ "embed"
 	"log"
 
 	_ "image/png"
@@ -11,11 +10,17 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+const (
+	Title        = "The Social Contract"
+	ScreenWidth  = 1280
+	ScreenHeight = 720
+)
+
 func main() {
 
-	ebiten.SetWindowTitle(game.Title)
-	ebiten.SetWindowSize(game.ScreenWidth, game.ScreenHeight)
-	g := game.New()
+	ebiten.SetWindowTitle(Title)
+	ebiten.SetWindowSize(ScreenWidth, ScreenHeight)
+	g := game.New(ScreenWidth, ScreenHeight)
 
 	if err := ebiten.RunGame(g); err != nil {
 		log.Fatal(err)

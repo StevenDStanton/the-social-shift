@@ -33,7 +33,7 @@ func (g *Game) drawLevel(screen *ebiten.Image) {
 	for y := 0; y < len(g.grid); y++ {
 		for x := 0; x < len(g.grid[y]); x++ {
 			char := g.grid[y][x]
-			text.Draw(screen, string(char), face, x*cellWidth, (y+1)*cellHeight, color.White)
+			text.Draw(screen, string(char), face, x*fontSize, (y+1)*fontSize, color.White)
 
 		}
 	}
@@ -57,20 +57,20 @@ func (g *Game) updateLevel() {
 }
 
 func (g *Game) initGrid() {
-	g.grid = make([][]rune, rows)
+	g.grid = make([][]rune, g.display.rows)
 
-	for y := 0; y < rows; y++ {
-		g.grid[y] = make([]rune, cols)
-		for x := 0; x < cols; x++ {
+	for y := 0; y < g.display.rows; y++ {
+		g.grid[y] = make([]rune, g.display.cols)
+		for x := 0; x < g.display.cols; x++ {
 			switch {
 			// Top or bottom boundary
-			case y == 0 || y == rows-1:
+			case y == 0 || y == g.display.rows-1:
 				g.grid[y][x] = '#'
 			// Left or right boundary
-			case x == 0 || x == cols-1:
+			case x == 0 || x == g.display.cols-1:
 				g.grid[y][x] = '#'
 			// Divider between play area and UI panel
-			case x == divider:
+			case x == g.display.divider:
 				g.grid[y][x] = '|'
 			// Everything else defaults to space
 			default:
@@ -90,11 +90,8 @@ func (g *Game) canPlayerMoveToPosition(move BoardMove) bool {
 	futureLoc := g.grid[futureY][futureX]
 
 	_, exists := Obstacles[futureLoc]
-	if exists {
-		return false
-	}
 
-	return true
+	return !exists
 }
 
 func (g *Game) Movement() {

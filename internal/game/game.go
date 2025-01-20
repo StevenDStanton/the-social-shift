@@ -37,10 +37,6 @@ const (
 )
 
 const (
-	Title        = "The Social Shift"
-	ScreenWidth  = 1280
-	ScreenHeight = 720
-
 	fontSize = 16
 	DPI      = 72
 	COOLDOWN = 15
@@ -51,13 +47,9 @@ const (
 )
 
 var (
-	face       font.Face
-	rows       = ScreenHeight / cellHeight
-	cols       = ScreenWidth / cellWidth
-	cellWidth  = fontSize
-	cellHeight = fontSize
-	divider    = int(math.Round(float64(cols) * 0.6))
-	Obstacles  = map[rune]rune{
+	face font.Face
+
+	Obstacles = map[rune]rune{
 		LEVEL_WALL:    LEVEL_WALL,
 		LEVEL_DIVIDER: LEVEL_DIVIDER,
 	}
@@ -68,7 +60,16 @@ type BoardMove struct {
 	y int
 }
 
+type GameDisplay struct {
+	rows         int
+	cols         int
+	divider      int
+	screenWidth  int
+	screenHeight int
+}
+
 type Game struct {
+	display          GameDisplay
 	level            Level
 	intro            *Intro
 	grid             [][]rune
@@ -80,11 +81,20 @@ type Game struct {
 	isLevelLoaded    bool
 }
 
-func New() *Game {
+func New(screenWidth, screenHeight int) *Game {
+
 	ac := audio.NewContext(44100)
+
 	g := &Game{
 		audioContext: ac,
 		player:       player.New(ac),
+		display: GameDisplay{
+			screenWidth:  screenWidth,
+			screenHeight: screenHeight,
+			rows:         screenHeight / fontSize,
+			cols:         screenWidth / fontSize,
+			divider:      int(math.Round(float64(screenWidth/fontSize) * 0.6)),
+		},
 	}
 
 	g.loadIntro()
@@ -125,5 +135,5 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 // Layout defines the screen dimensions.
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
-	return ScreenWidth, ScreenHeight
+	return g.display.screenWidth, g.display.screenHeight
 }

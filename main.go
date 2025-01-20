@@ -6,21 +6,34 @@ import (
 	_ "image/png"
 
 	"github.com/StevenDStanton/the-social-shift/internal/game"
+	"github.com/StevenDStanton/the-social-shift/internal/level"
+	"github.com/StevenDStanton/the-social-shift/internal/player"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
 const (
-	Title        = "The Social Contract"
-	ScreenWidth  = 1280
-	ScreenHeight = 720
+	title        = "The Social Contract"
+	screenWidth  = 1280
+	screenHeight = 720
+	playerStartX = 10
+	playerStartY = 10
 )
 
 func main() {
 
-	ebiten.SetWindowTitle(Title)
-	ebiten.SetWindowSize(ScreenWidth, ScreenHeight)
-	g := game.New(ScreenWidth, ScreenHeight)
+	ebiten.SetWindowTitle(title)
+	ebiten.SetWindowSize(screenWidth, screenHeight)
+	g := game.New(screenWidth, screenHeight)
+
+	l := level.New(playerStartX, playerStartY)
+
+	p := player.New(g.AudioContext, playerStartX, playerStartY)
+
+	p.Level = l
+
+	g.Components = append(g.Components, p)
+	g.Components = append(g.Components, l)
 
 	if err := ebiten.RunGame(g); err != nil {
 		log.Fatal(err)

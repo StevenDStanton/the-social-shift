@@ -6,6 +6,7 @@ import (
 
 	_ "embed"
 
+	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/audio"
 	"github.com/hajimehoshi/ebiten/v2/audio/wav"
 	"golang.org/x/exp/rand"
@@ -20,13 +21,29 @@ var step2 []byte
 //go:embed assets/audio/footstep_carpet_002.wav
 var step3 []byte
 
-type Player struct {
-	x, y   int
-	symbol rune
-	walk   []*audio.Player
+const (
+	MOVE_COOLDOWN = 15
+)
+
+type Level interface {
+	IsWalkable(x, y int) bool
+	UpdateBoard(x, y, dx, dy int)
+	UpdateCamera(x, y int)
 }
 
-func New(ac *audio.Context) *Player {
+type Player struct {
+	x, y             int
+	walk             []*audio.Player
+	movementCooldown int
+	Level            Level
+}
+
+type PlayerMove struct {
+	x int
+	y int
+}
+
+func New(ac *audio.Context, x, y int) *Player {
 	d1, err := wav.Decode(ac, bytes.NewReader(step1))
 	if err != nil {
 		log.Fatal(err)
@@ -54,26 +71,58 @@ func New(ac *audio.Context) *Player {
 		log.Fatal(err)
 	}
 	return &Player{
-		x:      10,
-		y:      10,
-		symbol: '@',
-		walk:   []*audio.Player{p1, p2, p3},
+		x:    x,
+		y:    y,
+		walk: []*audio.Player{p1, p2, p3},
 	}
 
 }
 
-func (p *Player) GetPosition() (int, int) {
-	return p.x, p.y
+func (p *Player) Update() {
+	if p.movementCooldown > 0 {
+		p.movementCooldown--
+		return
+	}
+
+	currentMove := PlayerMove{0, 0}
+	hasMoveInput := false
+	if ebiten.IsKeyPressed(ebiten.KeyW) {
+		currentMove = PlayerMove{0, -1}
+		hasMoveInput = true
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyA) {
+		currentMove = PlayerMove{-1, 0}
+		hasMoveInput = true
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyS) {
+		currentMove = PlayerMove{0, 1}
+		hasMoveInput = true
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyD) {
+		currentMove = PlayerMove{1, 0}
+		hasMoveInput = true
+	}
+
+	if hasMoveInput {
+		p.movementCooldown = MOVE_COOLDOWN
+		newPosition := PlayerMove{p.x + currentMove.x, p.y + currentMove.y}
+		log.Println("Player moving from ", p.x, p.y, " to ", newPosition.x, newPosition.y)
+		p.move(newPosition)
+	}
+
 }
 
-func (p *Player) GetSymbol() rune {
-	return p.symbol
-}
+func (p *Player) move(newPosition PlayerMove) {
+	if p.Level.IsWalkable(newPosition.x, newPosition.y) {
 
-func (p *Player) Move(x, y int) {
-	p.x += x
-	p.y += y
-	p.PlayFootstep()
+		p.Level.UpdateBoard(p.x, p.y, newPosition.x, newPosition.y)
+
+		p.x = newPosition.x
+		p.y = newPosition.y
+		p.PlayFootstep()
+		p.Level.UpdateCamera(p.x, p.y)
+
+	}
 }
 
 func (p *Player) PlayFootstep() {

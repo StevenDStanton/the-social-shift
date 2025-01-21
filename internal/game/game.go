@@ -21,8 +21,7 @@ type Game struct {
 	AudioContext *audio.Context
 	screenWidth  int
 	screenHeight int
-
-	Components []interface{}
+	Components   []interface{}
 }
 
 func New(screenWidth, screenHeight int) *Game {

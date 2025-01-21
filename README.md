@@ -132,19 +132,19 @@ Footsteps from Kenny.nl
 
 ## Development Timeline
 
-| Day | Date |      Type       |      Status |                     Notes                      |
-| :-: | :--: | :-------------: | ----------: | :--------------------------------------------: |
-|  1  | 1/17 | Brain Storming  |   Completed |       Deciding on how to implement theme       |
-|  2  | 1/18 | Design Document |   Completed |          Finish Game Design Document           |
-|  3  | 1/19 |     Coding      | in Progress |             Code base game systems             |
-|  4  | 1/20 |     Coding      |     Pending |           Code Dialog, interactions            |
-|  5  | 1/21 |      Audio      |     Pending | Set up audio for footsteps, timers, and alarms |
-|  6  | 1/22 |  Level Design   |     Pending |                 Design Levels                  |
-|  7  | 1/23 |  Level Design   |     Pending |                 Design Levels                  |
-|  8  | 1/24 |  Level Design   |     Pending |                 Design Levels                  |
-|  9  | 1/25 |     Coding      |     Pending |                  Code Puzzles                  |
-| 10  | 1/26 |     Coding      |     Pending |                Last day of code                |
-| 11  | 1/27 |   Bug Hunting   |     Pending |               Test and fix bugs                |
-| 12  | 1/28 |   Bug Hunting   |     Pending |               Test and fix bugs                |
-| 13  | 1/29 |  Final Testing  |     Pending |        Final Sanity Tests and bug fixes        |
-| 14  | 1/30 |     Submit      |     Pending |                  Submit Game                   |
+| Day | Date |      Type       |      Status |               Notes                |
+| :-: | :--: | :-------------: | ----------: | :--------------------------------: |
+|  o  | 1/17 | Brain Storming  |   Completed | Deciding on how to implement theme |
+|  1  | 1/18 | Design Document |   Completed |    Finish Game Design Document     |
+|  2  | 1/19 |     Coding      |   Completed |       Code base game systems       |
+|  3  | 1/20 |     Coding      |   Completed |     Code Dialog, interactions      |
+|  4  | 1/21 |      Audio      |   Completed |     Set up audio for footsteps     |
+|  5  | 1/22 |  Level Design   | In Progress |           Design Levels            |
+|  6  | 1/23 |  Level Design   |     Pending |           Design Levels            |
+|  7  | 1/24 |  Level Design   |     Pending |           Design Levels            |
+|  8  | 1/25 |     Coding      |     Pending |            Code Puzzles            |
+|  9  | 1/26 |     Coding      |     Pending |          Last day of code          |
+| 10  | 1/27 |   Bug Hunting   |     Pending |         Test and fix bugs          |
+| 11  | 1/28 |   Bug Hunting   |     Pending |         Test and fix bugs          |
+| 12  | 1/29 |  Final Testing  |     Pending |  Final Sanity Tests and bug fixes  |
+| 13  | 1/30 |     Submit      |     Pending |            Submit Game             |

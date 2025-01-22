@@ -5,17 +5,9 @@ var (
 	cameraY int
 )
 
-func (l *Level) viewWidth() int {
-	return T_DIVIDER
-}
-
-func (l *Level) viewHeight() int {
-	return B_DIVIDER
-}
-
 func (l *Level) UpdateCamera(playerX, playerY int) {
-	halfWidth := l.viewWidth() / 2
-	halfHeight := l.viewHeight() / 2
+	halfWidth := CENTER_DIVIDER / 2
+	halfHeight := B_DIVIDER / 2
 	desiredX := playerX - halfWidth
 	desiredY := playerY - halfHeight
 
@@ -25,8 +17,8 @@ func (l *Level) UpdateCamera(playerX, playerY int) {
 	}
 	mapWidth := len(l.MapGrid[0])
 
-	viewW := l.viewWidth()
-	viewH := l.viewHeight()
+	viewW := CENTER_DIVIDER
+	viewH := B_DIVIDER
 
 	if mapWidth <= viewW {
 		cameraX = 0
@@ -52,5 +44,25 @@ func (l *Level) UpdateCamera(playerX, playerY int) {
 			desiredY = maxCameraY
 		}
 		cameraY = desiredY
+	}
+	l.updateGridFromCamera()
+}
+
+func (l *Level) updateGridFromCamera() {
+	viewW := CENTER_DIVIDER
+	viewH := B_DIVIDER
+
+	for screenY := 0; screenY < viewH; screenY++ {
+		for screenX := 0; screenX < viewW; screenX++ {
+			mapY := cameraY + screenY
+			mapX := cameraX + screenX
+
+			if mapY < 0 || mapY >= len(l.MapGrid) ||
+				mapX < 0 || mapX >= len(l.MapGrid[mapY]) {
+				l.TheGrid[screenY][screenX] = ' '
+			} else {
+				l.TheGrid[screenY][screenX] = l.MapGrid[mapY][mapX]
+			}
+		}
 	}
 }

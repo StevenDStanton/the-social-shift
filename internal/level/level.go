@@ -48,7 +48,7 @@ const (
 	ROWS           = 45
 	CENTER_DIVIDER = 48
 	B_DIVIDER      = 40
-	DEBUG_MODE     = true
+	DEBUG_MODE     = false
 )
 
 const (

@@ -3,7 +3,7 @@
 # Variables
 PROJECT_PATH          = github.com/StevenDStanton/the-social-shift
 DIST_DIR             = dist
-VERSION              = 0.2.5
+VERSION              = 0.3.0
 
 GOROOT_WASM          = $(shell go env GOROOT)/misc/wasm/wasm_exec.js
 

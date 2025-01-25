@@ -1,4 +1,4 @@
-package level
+package intro
 
 import (
 	"bytes"
@@ -7,12 +7,49 @@ import (
 	"log"
 	"math"
 
+	_ "embed"
+
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"golang.org/x/image/font/basicfont"
 )
 
-func (l *Level) loadIntro() {
+type Intro struct {
+	images     []*ebiten.Image
+	timer      int
+	imageIndex int
+	Level      Level
+	Game       Game
+}
+
+type Level interface {
+	LoadLevel()
+}
+
+type Game interface {
+	RemoveComponent(c interface{})
+}
+
+func New() *Intro {
+
+	i := &Intro{}
+	i.loadIntro()
+	return i
+}
+
+//go:embed img/1.png
+var goLangImage []byte
+
+//go:embed img/2.png
+var gopherImage []byte
+
+//go:embed img/3.png
+var thesimpledevImage []byte
+
+//go:embed img/4.png
+var aptImage []byte
+
+func (i *Intro) loadIntro() {
 	goLangImageData, _, err := image.Decode(bytes.NewReader(goLangImage))
 	if err != nil {
 		log.Fatal(err)
@@ -33,35 +70,30 @@ func (l *Level) loadIntro() {
 		log.Fatal(err)
 	}
 
-	l.intro = &Intro{
-		images: []*ebiten.Image{
-			ebiten.NewImageFromImage(goLangImageData),
-			ebiten.NewImageFromImage(gopherImageData),
-			ebiten.NewImageFromImage(thesimpledevImageData),
-			ebiten.NewImageFromImage(aptImageData),
-		},
+	i.images = []*ebiten.Image{
+		ebiten.NewImageFromImage(goLangImageData),
+		ebiten.NewImageFromImage(gopherImageData),
+		ebiten.NewImageFromImage(thesimpledevImageData),
+		ebiten.NewImageFromImage(aptImageData),
 	}
 
 }
 
-func (l *Level) updateIntro() {
-	if DEBUG_MODE {
-		l.loadLevel(LEVEL1)
-		return
-	}
-	l.introTimer++
-	if l.introTimer%120 == 0 {
-		l.introImageIndex++
-		if l.introImageIndex >= len(l.intro.images)+1 {
-			l.loadLevel(LEVEL1)
+func (i *Intro) Update() {
+	i.timer++
+	if i.timer%120 == 0 {
+		i.imageIndex++
+		if i.imageIndex >= len(i.images)+1 {
+			i.Level.LoadLevel()
+			i.Game.RemoveComponent(i)
 		}
 	}
 }
 
-func (l *Level) drawIntro(screen *ebiten.Image) {
+func (i *Intro) Draw(screen *ebiten.Image) {
 	screenWidth, screenHeight := screen.Size()
 
-	switch l.introImageIndex {
+	switch i.imageIndex {
 	case 0:
 		poweredText := "Powered By Ebitengine"
 		face := basicfont.Face7x13
@@ -75,7 +107,7 @@ func (l *Level) drawIntro(screen *ebiten.Image) {
 
 		const spacing = 20.0
 
-		iw, ih := l.intro.images[0].Size()
+		iw, ih := i.images[0].Size()
 
 		maxImageScaleW := float64(screenWidth) / float64(iw)
 
@@ -96,7 +128,7 @@ func (l *Level) drawIntro(screen *ebiten.Image) {
 		op := &ebiten.DrawImageOptions{}
 		op.GeoM.Scale(imageScale, imageScale)
 		op.GeoM.Translate(imageX, imageY)
-		screen.DrawImage(l.intro.images[0], op)
+		screen.DrawImage(i.images[0], op)
 
 		textImg := ebiten.NewImage(tw, th)
 		text.Draw(textImg, poweredText, face, 0, th, color.White)
@@ -111,7 +143,7 @@ func (l *Level) drawIntro(screen *ebiten.Image) {
 		screen.DrawImage(textImg, txtOp)
 
 	case 1:
-		iw2, ih2 := l.intro.images[1].Size()
+		iw2, ih2 := i.images[1].Size()
 		op2 := &ebiten.DrawImageOptions{}
 
 		maxWidth2 := 0.4 * float64(screenWidth)
@@ -128,9 +160,9 @@ func (l *Level) drawIntro(screen *ebiten.Image) {
 		y2 := (float64(screenHeight)-scaledH2)/2 - 50
 		op2.GeoM.Translate(x2, y2)
 
-		screen.DrawImage(l.intro.images[1], op2)
+		screen.DrawImage(i.images[1], op2)
 
-		iw3, ih3 := l.intro.images[2].Size()
+		iw3, ih3 := i.images[2].Size()
 		op3 := &ebiten.DrawImageOptions{}
 
 		scale3 := float64(screenWidth) / float64(iw3)
@@ -142,10 +174,10 @@ func (l *Level) drawIntro(screen *ebiten.Image) {
 		y3 := float64(screenHeight) - scaledH3
 		op3.GeoM.Translate(x3, y3)
 
-		screen.DrawImage(l.intro.images[2], op3)
+		screen.DrawImage(i.images[2], op3)
 
 	case 2:
-		iw4, ih4 := l.intro.images[3].Size()
+		iw4, ih4 := i.images[3].Size()
 		op4 := &ebiten.DrawImageOptions{}
 
 		scaleW := float64(screenWidth) / float64(iw4)
@@ -160,7 +192,7 @@ func (l *Level) drawIntro(screen *ebiten.Image) {
 		y4 := (float64(screenHeight) - scaledH4) / 2
 		op4.GeoM.Translate(x4, y4)
 
-		screen.DrawImage(l.intro.images[3], op4)
+		screen.DrawImage(i.images[3], op4)
 
 	case 3:
 		face := basicfont.Face7x13

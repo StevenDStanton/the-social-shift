@@ -114,14 +114,11 @@ func (p *Player) Update() {
 
 func (p *Player) move(newPosition PlayerMove) {
 	if p.Level.IsWalkable(newPosition.x, newPosition.y) {
-
 		p.Level.UpdateBoard(p.x, p.y, newPosition.x, newPosition.y)
-
 		p.x = newPosition.x
 		p.y = newPosition.y
 		p.PlayFootstep()
 		p.Level.UpdateCamera(p.x, p.y)
-
 	}
 }
 
@@ -131,4 +128,9 @@ func (p *Player) PlayFootstep() {
 	sound.SetVolume(0.5)
 	sound.Rewind()
 	sound.Play()
+}
+
+func (p *Player) SetPosition(x, y int) {
+	p.x = x
+	p.y = y
 }

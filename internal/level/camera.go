@@ -6,8 +6,8 @@ var (
 )
 
 func (l *Level) UpdateCamera(playerX, playerY int) {
-	halfWidth := CENTER_DIVIDER / 2
-	halfHeight := B_DIVIDER / 2
+	halfWidth := COL_DIVIDER / 2
+	halfHeight := ROW_DIVIDER / 2
 	desiredX := playerX - halfWidth
 	desiredY := playerY - halfHeight
 
@@ -17,8 +17,8 @@ func (l *Level) UpdateCamera(playerX, playerY int) {
 	}
 	mapWidth := len(l.MapGrid[0])
 
-	viewW := CENTER_DIVIDER
-	viewH := B_DIVIDER
+	viewW := COL_DIVIDER
+	viewH := ROW_DIVIDER
 
 	if mapWidth <= viewW {
 		cameraX = 0
@@ -49,8 +49,8 @@ func (l *Level) UpdateCamera(playerX, playerY int) {
 }
 
 func (l *Level) updateGridFromCamera() {
-	viewW := CENTER_DIVIDER
-	viewH := B_DIVIDER
+	viewW := COL_DIVIDER
+	viewH := ROW_DIVIDER
 
 	for screenY := 0; screenY < viewH; screenY++ {
 		for screenX := 0; screenX < viewW; screenX++ {

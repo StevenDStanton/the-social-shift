@@ -17,18 +17,26 @@ type DialogState struct {
 	Entities []Entity `json:"entities"`
 }
 
-type Entity struct {
-	ID      string   `json:"id"`
-	Symbol  rune     `json:"symbol"`
-	X       int      `json:"x"`
-	Y       int      `json:"y"`
-	Text    string   `json:"text,omitempty"`
-	Options []Option `json:"options,omitempty"`
+type EntityDialogOption struct {
+	Text      string `json:"text"`
+	NextState string `json:"nextState,omitempty"`
 }
 
-type Option struct {
-	Text    string   `json:"text"`
-	Effects []string `json:"effects"`
+type EntityDialogState struct {
+	ID        string               `json:"id"`
+	Text      string               `json:"text"`
+	NextState string               `json:"nextState,omitempty"`
+	Options   []EntityDialogOption `json:"options,omitempty"`
+}
+
+type Entity struct {
+	ID           string              `json:"id"`
+	Symbol       rune                `json:"symbol"`
+	X            int                 `json:"x"`
+	Y            int                 `json:"y"`
+	Text         string              `json:"text,omitempty"`
+	DialogStates []EntityDialogState `json:"dialogStates,omitempty"`
+	active       bool
 }
 
 func (e *Entity) UnmarshalJSON(data []byte) error {
@@ -77,13 +85,7 @@ func (l *Level) loadDialog() {
 		}
 	}
 
-	l.setDialog(l.levelIntroDialog)
-
-	// for y := ROW_DIVIDER; y < ROWS; y++ {
-	// 	for x := 0; x < COLS; x++ {
-	// 		l.TheGrid[y][x] = '.'
-	// 	}
-	// }
+	l.setDialog(l.levelIntroDialog, []string{"Press SPACE to continue"})
 
 }
 
@@ -96,6 +98,71 @@ func (l *Level) updateDialog() {
 
 	if l.showingIntro {
 		l.showIntro()
+		return
+	}
+
+	if l.currentEntity != nil {
+		if !l.currentEntity.active {
+			l.activateCurrentEntity()
+			return
+		}
+
+		if l.currentEntity.active {
+			l.processACtivatedEntity()
+			return
+		}
+	}
+}
+
+func (l *Level) processACtivatedEntity() {
+	state := l.getCurrentEntityState()
+	if state == nil {
+		return
+	}
+
+	if ebiten.IsKeyPressed(ebiten.KeyEnter) || ebiten.IsKeyPressed(ebiten.KeySpace) {
+		// If there are no "options", this state might directly go to 'NextState' or end
+		if len(state.Options) == 0 {
+			if state.NextState == "end" {
+				l.currentEntity.active = false
+				l.clearDialogArea()
+			}
+			l.currentDialogStateID = state.NextState
+			l.selectedDialog = 0
+			l.setDialogForCurrentState()
+		} else {
+			opt := state.Options[l.selectedDialog]
+			if opt.NextState == "end" {
+				l.currentEntity.active = false
+				l.clearDialogArea()
+			}
+
+			l.currentDialogStateID = opt.NextState
+			l.selectedDialog = 0
+			l.setDialogForCurrentState()
+		}
+	}
+
+	if len(state.Options) > 0 {
+		if ebiten.IsKeyPressed(ebiten.KeyArrowDown) {
+			l.selectedDialog = (l.selectedDialog + 1) % len(state.Options)
+			l.setDialogForCurrentState()
+		}
+
+		if ebiten.IsKeyPressed(ebiten.KeyArrowUp) {
+			l.selectedDialog = (l.selectedDialog - 1 + len(state.Options)) % len(state.Options)
+			l.setDialogForCurrentState()
+		}
+	}
+}
+
+func (l *Level) activateCurrentEntity() {
+	if ebiten.IsKeyPressed(ebiten.KeySpace) || ebiten.IsKeyPressed(ebiten.KeyEnter) {
+		l.currentEntity.active = true
+		l.currentDialogStateID = "start"
+		l.selectedDialog = 0
+		l.setDialogForCurrentState()
+		return
 	}
 }
 
@@ -114,7 +181,7 @@ func (l *Level) clearDialogArea() {
 	}
 }
 
-func (l *Level) setDialog(text []string) {
+func (l *Level) setDialog(text []string, options []string) {
 	dialRow := 0
 	for _, textLine := range text {
 		lineStart := 0
@@ -124,23 +191,90 @@ func (l *Level) setDialog(text []string) {
 				lineEnd = len(textLine)
 			}
 
-			// Compute the row in the grid based on dialog row plus indent
 			gridRow := dialRow + DIALOG_INDENT
 
-			// Copy each character of this chunk into the grid
 			for dialCol := 0; dialCol < lineEnd-lineStart; dialCol++ {
 				gridCol := COL_DIVIDER + DIALOG_INDENT + dialCol
 				l.TheGrid[gridRow][gridCol] = rune(textLine[lineStart+dialCol])
 			}
 
-			// Move down one dialog row
 			dialRow++
 			lineStart = lineEnd
 
-			// If we've reached the bottom of the dialog region, stop
 			if gridRow+1 >= ROW_DIVIDER {
 				return
 			}
 		}
 	}
+
+	for i := 0; i < DIALOG_INDENT; i++ {
+		dialRow++
+		if dialRow+DIALOG_INDENT >= ROW_DIVIDER {
+			return
+		}
+	}
+
+	sepRow := dialRow + DIALOG_INDENT
+	if sepRow < ROW_DIVIDER {
+		for col := COL_DIVIDER + DIALOG_INDENT; col < COLS; col++ {
+			l.TheGrid[sepRow][col] = '-'
+		}
+		dialRow++
+	}
+
+	for i := 0; i < DIALOG_INDENT; i++ {
+		dialRow++
+		if dialRow+DIALOG_INDENT >= ROW_DIVIDER {
+			return
+		}
+	}
+
+	for _, opt := range options {
+		optionRow := dialRow + DIALOG_INDENT
+		if optionRow >= ROW_DIVIDER {
+			return
+		}
+		startCol := COL_DIVIDER + DIALOG_INDENT
+		for j, r := range opt {
+			gridCol := startCol + j
+			if gridCol < COLS {
+				l.TheGrid[optionRow][gridCol] = r
+			}
+		}
+		dialRow++
+	}
+
+}
+
+func (l *Level) getCurrentEntityState() *EntityDialogState {
+	if l.currentEntity == nil {
+		return nil
+	}
+	for i := range l.currentEntity.DialogStates {
+		if l.currentEntity.DialogStates[i].ID == l.currentDialogStateID {
+			return &l.currentEntity.DialogStates[i]
+		}
+	}
+	return nil
+}
+
+func (l *Level) setDialogForCurrentState() {
+	l.clearDialogArea()
+	state := l.getCurrentEntityState()
+	if state == nil {
+		return
+	}
+
+	text := []string{state.Text}
+
+	var optionTexts []string
+	for i, opt := range state.Options {
+		prefix := "  "
+		if i == l.selectedDialog {
+			prefix = "> "
+		}
+		optionTexts = append(optionTexts, prefix+opt.Text)
+	}
+
+	l.setDialog(text, optionTexts)
 }

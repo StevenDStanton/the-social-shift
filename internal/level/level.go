@@ -35,7 +35,6 @@ const (
 const (
 	LEVEL_EMPTY     = ' '
 	LEVEL_WALL      = '#'
-	PLAYER_SYMBOL   = '@'
 	DIALOG_SELECTOR = '>'
 	DIALOG_INDENT   = 2
 )
@@ -54,19 +53,22 @@ var (
 )
 
 type Level struct {
-	face             font.Face
-	TheGrid          [][]rune
-	MapGrid          [][]rune
-	level            int
-	dialogState      *DialogState
-	levelIntroDialog []string
-	dialogActive     bool
-	selectedDialog   int
-	showingIntro     bool
-	showingItem      bool
-	entities         EntityMap
-	Player           Player
-	selectCooldown   int
+	face                 font.Face
+	TheGrid              [][]rune
+	MapGrid              [][]rune
+	level                int
+	dialogState          *DialogState
+	levelIntroDialog     []string
+	dialogActive         bool
+	selectedDialog       int
+	showingIntro         bool
+	showingItem          bool
+	entities             EntityMap
+	Player               Player
+	selectCooldown       int
+	currentEntity        *Entity
+	currentDialogStateID string
+	selectedOption       int
 }
 
 func New() *Level {
@@ -99,9 +101,9 @@ func (l *Level) Draw(screen *ebiten.Image) {
 
 			textColor := color.RGBA{255, 255, 255, 1}
 
-			// if l.dialogActive && y == l.selectedDialog && x >= CENTER_DIVIDER {
-			// 	textColor = color.RGBA{0xff, 0xff, 0xff, 0xff}
-			// }
+			if l.dialogActive && y == l.selectedDialog && x >= COL_DIVIDER {
+				textColor = color.RGBA{0xff, 0xff, 0xff, 0xff}
+			}
 
 			text.Draw(screen, string(ch), l.face, px, py, textColor)
 		}
@@ -110,6 +112,7 @@ func (l *Level) Draw(screen *ebiten.Image) {
 
 func (l *Level) Update() {
 	l.updateDialog()
+
 }
 
 func (l *Level) LoadLevel() {

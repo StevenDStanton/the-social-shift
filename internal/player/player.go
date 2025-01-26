@@ -106,7 +106,6 @@ func (p *Player) Update() {
 	if hasMoveInput {
 		p.movementCooldown = MOVE_COOLDOWN
 		newPosition := PlayerMove{p.x + currentMove.x, p.y + currentMove.y}
-		log.Println("Player moving from ", p.x, p.y, " to ", newPosition.x, newPosition.y)
 		p.move(newPosition)
 	}
 

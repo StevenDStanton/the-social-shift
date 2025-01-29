@@ -18,6 +18,7 @@ type Intro struct {
 	images     []*ebiten.Image
 	timer      int
 	imageIndex int
+	sceneCount int
 	Level      Level
 	Game       Game
 }
@@ -50,6 +51,9 @@ var thesimpledevImage []byte
 var aptImage []byte
 
 func (i *Intro) loadIntro() {
+
+	i.sceneCount = 2
+
 	goLangImageData, _, err := image.Decode(bytes.NewReader(goLangImage))
 	if err != nil {
 		log.Fatal(err)
@@ -83,7 +87,7 @@ func (i *Intro) Update() {
 	i.timer++
 	if i.timer%120 == 0 {
 		i.imageIndex++
-		if i.imageIndex >= len(i.images)+1 {
+		if i.imageIndex >= i.sceneCount {
 			i.Level.LoadLevel()
 			i.Game.RemoveComponent(i)
 		}
@@ -95,54 +99,30 @@ func (i *Intro) Draw(screen *ebiten.Image) {
 
 	switch i.imageIndex {
 	case 0:
-		poweredText := "Powered By Ebitengine"
-		face := basicfont.Face7x13
 
-		tw := text.BoundString(face, poweredText).Dx()
-		th := text.BoundString(face, poweredText).Dy()
+		// Start of Golang
 
-		textScale := 4.0
-		scaledTextW := float64(tw) * textScale
-		scaledTextH := float64(th) * textScale
+		// iw, ih := i.images[0].Size()
+		// maxWidth1 := 0.4 * float64(screenWidth)
 
-		const spacing = 20.0
+		// scale1 := maxWidth1 / float64(iw)
 
-		iw, ih := i.images[0].Size()
+		// scaledW1 := float64(iw) * scale1
+		// scaledH1 := float64(ih) * scale1
 
-		maxImageScaleW := float64(screenWidth) / float64(iw)
+		// i1x := (float64(screenWidth) - scaledW1) / 2
+		// i1y := 0.0
 
-		maxAvailableHForImage := float64(screenHeight) - (scaledTextH + spacing)
-		maxImageScaleH := maxAvailableHForImage / float64(ih)
+		// op := &ebiten.DrawImageOptions{}
+		// op.GeoM.Scale(scale1, scale1)
+		// op.GeoM.Translate(i1x, i1y)
 
-		imageScale := math.Min(maxImageScaleW, maxImageScaleH)
-		if imageScale < 0 {
-			imageScale = 0.5
-		}
+		// screen.DrawImage(i.images[0], op)
 
-		scaledImageW := float64(iw) * imageScale
-		scaledImageH := float64(ih) * imageScale
+		//End of Golang
 
-		imageX := (float64(screenWidth) - scaledImageW) / 2
-		imageY := (float64(screenHeight) - (scaledImageH + spacing + scaledTextH)) / 2
+		//Start Gopher Computer Fire
 
-		op := &ebiten.DrawImageOptions{}
-		op.GeoM.Scale(imageScale, imageScale)
-		op.GeoM.Translate(imageX, imageY)
-		screen.DrawImage(i.images[0], op)
-
-		textImg := ebiten.NewImage(tw, th)
-		text.Draw(textImg, poweredText, face, 0, th, color.White)
-
-		txtOp := &ebiten.DrawImageOptions{}
-		txtOp.GeoM.Scale(textScale, textScale)
-
-		textX := (float64(screenWidth) - scaledTextW) / 2
-		textY := imageY + scaledImageH + spacing - 150
-
-		txtOp.GeoM.Translate(textX, textY)
-		screen.DrawImage(textImg, txtOp)
-
-	case 1:
 		iw2, ih2 := i.images[1].Size()
 		op2 := &ebiten.DrawImageOptions{}
 
@@ -157,10 +137,14 @@ func (i *Intro) Draw(screen *ebiten.Image) {
 		scaledW2 := float64(iw2) * scale2
 		scaledH2 := float64(ih2) * scale2
 		x2 := (float64(screenWidth) - scaledW2) / 2
-		y2 := (float64(screenHeight)-scaledH2)/2 - 50
+		y2 := (float64(screenHeight) - scaledH2) / 2
 		op2.GeoM.Translate(x2, y2)
 
 		screen.DrawImage(i.images[1], op2)
+
+		//End Gopher Computer Fire
+
+		//Start The Simple Dev
 
 		iw3, ih3 := i.images[2].Size()
 		op3 := &ebiten.DrawImageOptions{}
@@ -176,7 +160,32 @@ func (i *Intro) Draw(screen *ebiten.Image) {
 
 		screen.DrawImage(i.images[2], op3)
 
-	case 2:
+		//End The Simple Dev
+
+		// Start of Text
+		poweredText := "Powered By Ebitengine"
+
+		tw := text.BoundString(basicfont.Face7x13, poweredText).Dx()
+		th := text.BoundString(basicfont.Face7x13, poweredText).Dy()
+
+		textScale := 4.0
+		scaledW := float64(tw) * textScale
+		//scaledH := float64(th) * textScale
+
+		x := (float64(screenWidth) - scaledW) / 2
+		y := 50.0
+
+		txtImg := ebiten.NewImage(tw, th)
+		text.Draw(txtImg, poweredText, basicfont.Face7x13, 0, th, color.White)
+
+		txtOp := &ebiten.DrawImageOptions{}
+		txtOp.GeoM.Scale(textScale, textScale)
+		txtOp.GeoM.Translate(x, y)
+		screen.DrawImage(txtImg, txtOp)
+		//End of text
+
+	case 1:
+		screen.Fill(color.RGBA{0x38, 0x39, 0x3a, 0xff})
 		iw4, ih4 := i.images[3].Size()
 		op4 := &ebiten.DrawImageOptions{}
 
@@ -194,28 +203,5 @@ func (i *Intro) Draw(screen *ebiten.Image) {
 
 		screen.DrawImage(i.images[3], op4)
 
-	case 3:
-		face := basicfont.Face7x13
-		creditLines := []string{
-			"Credits",
-			"==========",
-			"Coded by TheSimpleDev",
-			"Footstep sounds by Kenney (kenney.nl)",
-			"Awesome Gopher Art by MariaLetta",
-		}
-
-		lineHeight := text.BoundString(face, "A").Dy() + 4
-		totalLines := len(creditLines)
-		totalHeight := lineHeight * totalLines
-		startY := (screenHeight - totalHeight) / 2
-
-		for i, line := range creditLines {
-			lineWidth := text.BoundString(face, line).Dx()
-			startX := (screenWidth - lineWidth) / 2
-			x := startX
-			y := startY + i*lineHeight
-
-			text.Draw(screen, line, face, x, y, color.White)
-		}
 	}
 }

@@ -100,29 +100,6 @@ func (i *Intro) Draw(screen *ebiten.Image) {
 	switch i.imageIndex {
 	case 0:
 
-		// Start of Golang
-
-		// iw, ih := i.images[0].Size()
-		// maxWidth1 := 0.4 * float64(screenWidth)
-
-		// scale1 := maxWidth1 / float64(iw)
-
-		// scaledW1 := float64(iw) * scale1
-		// scaledH1 := float64(ih) * scale1
-
-		// i1x := (float64(screenWidth) - scaledW1) / 2
-		// i1y := 0.0
-
-		// op := &ebiten.DrawImageOptions{}
-		// op.GeoM.Scale(scale1, scale1)
-		// op.GeoM.Translate(i1x, i1y)
-
-		// screen.DrawImage(i.images[0], op)
-
-		//End of Golang
-
-		//Start Gopher Computer Fire
-
 		iw2, ih2 := i.images[1].Size()
 		op2 := &ebiten.DrawImageOptions{}
 

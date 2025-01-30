@@ -17,6 +17,18 @@ import (
 //go:embed assets/txt/level1_map.txt
 var level_1_map string
 
+//go:embed assets/txt/level2_map.txt
+var level_2_map string
+
+//go:embed assets/txt/level3_map.txt
+var level_3_map string
+
+//go:embed assets/txt/level4_map.txt
+var level_4_map string
+
+//go:embed assets/txt/level5_map.txt
+var level_5_map string
+
 type EntityMap map[string]Entity
 
 type Player interface {
@@ -40,15 +52,21 @@ const (
 )
 
 var (
-	Obstacles = map[rune]rune{
-		LEVEL_WALL: LEVEL_WALL,
-	}
+	Obstacles = map[rune]rune{}
 
 	levelMaps = []string{
 		level_1_map,
+		level_2_map,
+		level_3_map,
+		level_4_map,
+		level_5_map,
 	}
 	levelDialogs = []string{
 		level_1_dialog,
+		level_2_dialog,
+		level_3_dialog,
+		level_4_dialog,
+		level_5_dialog,
 	}
 )
 
@@ -68,7 +86,6 @@ type Level struct {
 	selectCooldown       int
 	currentEntity        *Entity
 	currentDialogStateID string
-	selectedOption       int
 }
 
 func New() *Level {
@@ -87,7 +104,6 @@ func New() *Level {
 	}
 
 	l := &Level{face: face}
-	l.configureGrid()
 	return l
 
 }
@@ -116,7 +132,10 @@ func (l *Level) Update() {
 }
 
 func (l *Level) LoadLevel() {
+	Obstacles = map[rune]rune{LEVEL_WALL: LEVEL_WALL}
 	log.Println("Loading level", l.level)
+	l.entities = make(EntityMap)
+	l.configureGrid()
 	l.resetLevelState()
 	l.loadMap()
 	l.loadDialog()
@@ -138,7 +157,10 @@ func (l *Level) resetLevelState() {
 		}
 	}
 
-	l.showingIntro = true
+	if l.level <= 1 {
+		l.showingIntro = true
+	}
+
 }
 
 func (l *Level) loadMap() {

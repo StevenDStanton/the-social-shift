@@ -12,6 +12,18 @@ import (
 //go:embed assets/txt/level1_dialog.json
 var level_1_dialog string
 
+//go:embed assets/txt/level2_dialog.json
+var level_2_dialog string
+
+//go:embed assets/txt/level3_dialog.json
+var level_3_dialog string
+
+//go:embed assets/txt/level4_dialog.json
+var level_4_dialog string
+
+//go:embed assets/txt/level5_dialog.json
+var level_5_dialog string
+
 type DialogState struct {
 	Intro    []string `json:"intro"`
 	Entities []Entity `json:"entities"`
@@ -68,12 +80,13 @@ func (l *Level) loadDialog() {
 		log.Fatal(err)
 	}
 
+	l.dialogState = nil
+
 	l.dialogState = &dialogState
 	l.levelIntroDialog = dialogState.Intro
 	l.dialogActive = true
 	l.selectedDialog = 0
 	l.showingIntro = true
-	l.entities = make(EntityMap)
 
 	for _, entity := range dialogState.Entities {
 		key := strconv.Itoa(entity.Y) + strconv.Itoa(entity.X)
@@ -135,6 +148,11 @@ func (l *Level) processACtivatedEntity() {
 			if opt.NextState == "end" {
 				l.currentEntity.active = false
 				l.clearDialogArea()
+			}
+
+			if opt.NextState == "exit" {
+				l.level++
+				l.LoadLevel()
 			}
 
 			l.currentDialogStateID = opt.NextState

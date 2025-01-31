@@ -106,7 +106,6 @@ func New() *Level {
 
 	l := &Level{face: face, disableInput: true}
 
-	l.level = 4
 	return l
 
 }

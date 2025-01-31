@@ -134,7 +134,6 @@ func (l *Level) processACtivatedEntity() {
 	}
 
 	if ebiten.IsKeyPressed(ebiten.KeyEnter) || ebiten.IsKeyPressed(ebiten.KeySpace) {
-		// If there are no "options", this state might directly go to 'NextState' or end
 		if len(state.Options) == 0 {
 			if state.NextState == "end" {
 				l.currentEntity.active = false
@@ -145,13 +144,19 @@ func (l *Level) processACtivatedEntity() {
 			l.setDialogForCurrentState()
 		} else {
 			opt := state.Options[l.selectedDialog]
-			if opt.NextState == "end" {
+			if opt.NextState == "end_interaction" {
 				l.currentEntity.active = false
 				l.clearDialogArea()
 			}
 
-			if opt.NextState == "exit" {
+			if opt.NextState == "next_level" {
 				l.level++
+				l.LoadLevel()
+				return
+			}
+
+			if opt.NextState == "end_game" {
+				l.level = 0
 				l.LoadLevel()
 			}
 

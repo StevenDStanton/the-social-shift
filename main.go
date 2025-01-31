@@ -5,9 +5,9 @@ import (
 	"log"
 
 	"github.com/StevenDStanton/the-social-shift/internal/game"
+	"github.com/StevenDStanton/the-social-shift/internal/intro"
 	"github.com/StevenDStanton/the-social-shift/internal/level"
 	"github.com/StevenDStanton/the-social-shift/internal/player"
-	"github.com/StevenDStanton/the-social-shift/intro"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 

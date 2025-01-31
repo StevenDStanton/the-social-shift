@@ -40,7 +40,7 @@ const (
 	DPI         = 72
 	COLS        = 80
 	ROWS        = 45
-	COL_DIVIDER = 48
+	COL_DIVIDER = 30
 	ROW_DIVIDER = 40
 )
 
@@ -86,6 +86,7 @@ type Level struct {
 	selectCooldown       int
 	currentEntity        *Entity
 	currentDialogStateID string
+	disableInput         bool
 }
 
 func New() *Level {
@@ -103,7 +104,9 @@ func New() *Level {
 		log.Fatal(err)
 	}
 
-	l := &Level{face: face}
+	l := &Level{face: face, disableInput: true}
+
+	l.level = 4
 	return l
 
 }
@@ -140,6 +143,7 @@ func (l *Level) LoadLevel() {
 	l.loadMap()
 	l.loadDialog()
 	l.updateGridFromCamera()
+	l.disableInput = false
 
 }
 
@@ -157,9 +161,7 @@ func (l *Level) resetLevelState() {
 		}
 	}
 
-	if l.level <= 1 {
-		l.showingIntro = true
-	}
+	l.showingIntro = true
 
 }
 
